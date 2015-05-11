@@ -13,8 +13,12 @@ import net.gcdc.ittgt.model.WorldModel;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BasicGroTrServerTest {
+    private final static Logger logger = LoggerFactory.getLogger(BasicGroTrServerTest.class);
+
 
     class IsAnyWorldModel extends ArgumentMatcher<WorldModel> {
         @Override public boolean matches(Object that) {
@@ -50,11 +54,14 @@ public class BasicGroTrServerTest {
         server.register(vehicle2.id, connection2);
         verify(connection1).send(argThat(new IsAnyWorldModel()));
         verify(connection2).send(argThat(new IsAnyWorldModel()));
-
+        logger.debug("connection1: {}", connection1);
+        logger.debug("connection2: {}", connection2);
+        logger.debug("vehicle1: {}", vehicle1);
+        logger.debug("vehicle2: {}", vehicle2);
         server.updateVehicleState(vehicle1, connection1);
         server.updateVehicleState(vehicle2, connection2);
 
-        Thread.sleep(10);
+        Thread.sleep(30);
         verify(connection1, times(2)).send(argThat(new IsAnyWorldModel()));
         verify(connection2, times(2)).send(argThat(new IsAnyWorldModel()));
     }
