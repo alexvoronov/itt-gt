@@ -158,6 +158,14 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
         // Add vehicle.
         boolean seenBefore = idToVehicleThisStep.containsKey(vehicle.id);
         idToVehicleThisStep.put(vehicle.id, vehicle);
+        // Make sure that counterVehiclesThisStep was initialized.
+        while (counterVehiclesThisStep == null) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                logger.warn("Interrupted while waiting for counterVehiclesThisStep to become non-null");
+            }
+        }
         if (!seenBefore) {
             counterVehiclesThisStep.countDown();
         } else {

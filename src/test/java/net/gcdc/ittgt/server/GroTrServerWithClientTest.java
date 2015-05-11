@@ -1,6 +1,7 @@
 package net.gcdc.ittgt.server;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -78,9 +79,11 @@ public class GroTrServerWithClientTest {
 
         int minExpectedSteps = 3;
 
-        executor.awaitTermination(100, TimeUnit.MILLISECONDS);
-        assertTrue(vehicle1.lat > vehicle1StartLat + minExpectedSteps * oneStepLatChange);
-        assertTrue(vehicle2.lat > vehicle2StartLat + minExpectedSteps * oneStepLatChange);
+        executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+        assertThat("veh1 lat", vehicle1.lat, greaterThan(vehicle1StartLat + minExpectedSteps * oneStepLatChange));
+        assertThat("veh2 lat", vehicle2.lat, greaterThan(vehicle2StartLat + minExpectedSteps * oneStepLatChange));
+//        assertTrue(vehicle1.lat > vehicle1StartLat + minExpectedSteps * oneStepLatChange);
+//        assertTrue(vehicle2.lat > vehicle2StartLat + minExpectedSteps * oneStepLatChange);
     }
 
 }
