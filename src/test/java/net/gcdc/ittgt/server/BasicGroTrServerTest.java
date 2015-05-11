@@ -9,9 +9,6 @@ import java.util.Date;
 
 import net.gcdc.ittgt.model.Vehicle;
 import net.gcdc.ittgt.model.WorldModel;
-import net.gcdc.ittgt.server.BasicGroTrServer;
-import net.gcdc.ittgt.server.ClientConnection;
-import net.gcdc.ittgt.server.GroTrServer;
 
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -120,7 +117,7 @@ public class BasicGroTrServerTest {
         vehicle2.lat = 57.5;
         vehicle2.lon = 13.5;
         model.vehicles = new Vehicle[] { vehicle1, vehicle2 };
-        final int timeoutMillis = 100;
+        final int timeoutMillis = 300;
         GroTrServer server = new BasicGroTrServer(model, timeoutMillis);
         // Executors.newSingleThreadExecutor().submit(new SocketClientSpawner(port, server));
         ClientConnection connection1 = Mockito.mock(ClientConnection.class);
@@ -136,7 +133,7 @@ public class BasicGroTrServerTest {
 
         // No sending before received from all
         server.updateVehicleState(vehicle1, connection1);
-        Thread.sleep(10);
+        Thread.sleep(50);
         verify(connection1, times(1)).send(argThat(new IsAnyWorldModel()));
         verify(connection2, times(1)).send(argThat(new IsAnyWorldModel()));
 

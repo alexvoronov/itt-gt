@@ -19,10 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import net.gcdc.ittgt.client.gpsd.GpsData;
-import net.gcdc.ittgt.client.gpsd.GpsdServer;
-import net.gcdc.ittgt.client.gpsd.TPV;
-
 import org.junit.Test;
 
 import com.google.gson.Gson;
@@ -38,7 +34,7 @@ public class GpsdServerTest {
         final int port = 4003;
         final GpsdServer gpsdServer = GpsdServer.start(port);
 
-        final Socket socket = new Socket(InetAddress.getLocalHost(), port);
+        final Socket socket = new Socket(InetAddress.getLoopbackAddress(), port);
         final BufferedReader reader = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()));
         final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
