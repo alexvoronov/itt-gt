@@ -1,4 +1,4 @@
-# Interactive Test Tool - Ground Truth part [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt) [![Coverage Status](https://coveralls.io/repos/alexvoronov/itt-gt/badge.svg)](https://coveralls.io/r/alexvoronov/itt-gt)
+# Interactive Test Tool - Ground Truth part [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt) [![Coverage Status](https://coveralls.io/repos/alexvoronov/itt-gt/badge.svg?branch=master)](https://coveralls.io/r/alexvoronov/itt-gt?branch=master)
 
 An implementation of Interactive Test Tool (ITT). ITT is outlined in the [ITT paper](https://raw.githubusercontent.com/alexvoronov/itt-gt/master/doc/Interactive.Test.Tool.preprint.pdf). The code here contains:
 
