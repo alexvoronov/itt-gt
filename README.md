@@ -1,4 +1,4 @@
-# Interactive Test Tool - Ground Truth part
+# Interactive Test Tool - Ground Truth part [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt)
 
 An implementation of Interactive Test Tool (ITT). The code here contains:
 
