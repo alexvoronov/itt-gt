@@ -23,3 +23,12 @@ Server listens on TCP for GT data from clients, then bundles it into WorldModel 
 Client adapter listens on a UDP port for data from Simulink. Adapter unpacks Simulink data from UDP, then repacks it into JSON and sends it over TCP to the ITT GT Server. 
 
 Adapter receives WorldModel from ITT GT Server as JSON, unpacks JSON, then repacks the data as a UDP payload and sends it over UDP back to Simulink.
+
+
+### Acknowledgements
+This implementation was partly developed within [i-GAME](http://gcdc.net/i-game) project that has received funding from the European Union's Seventh Framework Programme for research, technological development and demonstration under grant agreement no [612035](http://cordis.europa.eu/project/rcn/110506_en.html).
+
+
+### License
+
+This code is released under the business-friendly Apache 2.0 license.
