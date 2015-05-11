@@ -1,18 +1,18 @@
-# Interactive Test Tool - Ground Truth part [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt)
+# Interactive Test Tool - Ground Truth part [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt) [![Coverage Status](https://coveralls.io/repos/alexvoronov/itt-gt/badge.svg)](https://coveralls.io/r/alexvoronov/itt-gt)
 
-An implementation of Interactive Test Tool (ITT). The code here contains:
+An implementation of Interactive Test Tool (ITT). ITT is outlined in the [ITT paper](https://raw.githubusercontent.com/alexvoronov/itt-gt/master/doc/Interactive.Test.Tool.preprint.pdf). The code here contains:
 
   - a Java model of the Ground Truth (GT) data to be exanged (we specified that GT is sent as JSON, here is a Java wrapper for that spec)
   - an ITT Ground Truth server
   - an example of a Ground Truth Client Adapter. 
 
 
-Client itself (vehicle, implemented in Simulink) is not part of this code. V2X part of the ITT is not part of this code either, see V2X.md for details about V2X part.
+Client itself (vehicle, implemented in Simulink) is not part of this code. V2X part of the ITT is not part of this code either, see [V2X](https://github.com/alexvoronov/itt-gt/blob/master/doc/V2X.md) for details about V2X part.
 
 
 ### Java model of GT
 
-Java model is just a simple class (POJO) that is encoded to JSON by GSON. GT data of all clients constitutes a WorldModel.
+Java model is just a simple [Vehicle](https://github.com/alexvoronov/itt-gt/blob/master/src/main/java/net/gcdc/ittgt/model/Vehicle.java) class ([POJO](http://en.wikipedia.org/wiki/Plain_Old_Java_Object)) that is encoded to [JSON](http://en.wikipedia.org/wiki/JSON) by [GSON](https://github.com/google/gson). GT data of all clients constitutes a [WorldModel](https://github.com/alexvoronov/itt-gt/blob/master/src/main/java/net/gcdc/ittgt/model/WorldModel.java).
 
 ### ITT GT Server
 
