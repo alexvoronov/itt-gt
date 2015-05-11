@@ -33,6 +33,7 @@ public class GpsdServerTest {
             ExecutionException {
         final int port = 4003;
         final GpsdServer gpsdServer = GpsdServer.start(port);
+        Thread.sleep(30);  // Let the server to start up before starting any client.
 
         final Socket socket = new Socket(InetAddress.getLoopbackAddress(), port);
         final BufferedReader reader = new BufferedReader(
