@@ -15,8 +15,6 @@ import net.gcdc.ittgt.client.GroTrClient.TcpServerConnection;
 import net.gcdc.ittgt.client.GroTrClient.VehicleConnection;
 import net.gcdc.ittgt.model.Vehicle;
 import net.gcdc.ittgt.model.WorldModel;
-import net.gcdc.ittgt.server.BasicGroTrServer;
-import net.gcdc.ittgt.server.ClientConnectionsSpawner;
 
 import org.junit.Test;
 
@@ -67,6 +65,7 @@ public class GroTrServerWithClientTest {
         BasicGroTrServer server = new BasicGroTrServer(worldModel, timeoutMillis);
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.submit(new ClientConnectionsSpawner(port, server));
+        Thread.sleep(50);  // Just to let the server start listening on the TCP port.
         InetSocketAddress serverAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), port);
         TcpServerConnection serverConnection1 = new TcpServerConnection(serverAddress);
         TcpServerConnection serverConnection2 = new TcpServerConnection(serverAddress);

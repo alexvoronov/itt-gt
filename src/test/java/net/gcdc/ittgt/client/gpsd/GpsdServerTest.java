@@ -26,7 +26,7 @@ import com.google.gson.GsonBuilder;
 
 public class GpsdServerTest {
 
-    @Test(timeout = 2000)
+    @Test(timeout = 4000)
     public void test() throws UnknownHostException,
             IOException,
             InterruptedException,
@@ -95,7 +95,7 @@ public class GpsdServerTest {
                 }
             }
         });
-        Thread.sleep(30);
+        Thread.sleep(500);
         gpsdServer.setLastSeen(GpsData.builder().lat(lat).lon(lon).create());
         runner.get();
         assertTrue("failed with exception(s)" + exceptions, exceptions.isEmpty());
