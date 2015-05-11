@@ -1,4 +1,4 @@
-package net.gcdc.grotr.ittgt.gpsd;
+package net.gcdc.ittgt.client.gpsd;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

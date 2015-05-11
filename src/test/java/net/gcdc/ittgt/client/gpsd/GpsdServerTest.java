@@ -1,4 +1,4 @@
-package net.gcdc.grotr.client.gpsd;
+package net.gcdc.ittgt.client.gpsd;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -19,9 +19,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import net.gcdc.grotr.ittgt.gpsd.GpsData;
-import net.gcdc.grotr.ittgt.gpsd.GpsdServer;
-import net.gcdc.grotr.ittgt.gpsd.TPV;
+import net.gcdc.ittgt.client.gpsd.GpsData;
+import net.gcdc.ittgt.client.gpsd.GpsdServer;
+import net.gcdc.ittgt.client.gpsd.TPV;
 
 import org.junit.Test;
 

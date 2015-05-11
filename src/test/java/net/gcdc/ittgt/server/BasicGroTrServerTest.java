@@ -1,4 +1,4 @@
-package net.gcdc.grotr.server;
+package net.gcdc.ittgt.server;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.times;

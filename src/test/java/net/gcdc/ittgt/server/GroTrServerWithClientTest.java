@@ -1,4 +1,4 @@
-package net.gcdc.grotr.server;
+package net.gcdc.ittgt.server;
 
 import static org.junit.Assert.assertTrue;
 

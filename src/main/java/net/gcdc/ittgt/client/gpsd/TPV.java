@@ -1,4 +1,4 @@
-package net.gcdc.grotr.ittgt.gpsd;
+package net.gcdc.ittgt.client.gpsd;
 
 import java.util.Date;
 
