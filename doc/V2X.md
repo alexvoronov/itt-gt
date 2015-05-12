@@ -1,6 +1,6 @@
 # A note on V2X part of Interactive Test Tool
 
-Vehicle-to-Vehicle and Vehicle-to-Infrastructure (V2X) part of the Interactive Test Tool (ITT) is a simple Virtual Private Network (VPN) based on OpenVPN.
+Vehicle-to-Vehicle and Vehicle-to-Infrastructure (V2X) part of the Interactive Test Tool (ITT) is a simple Virtual Private Network (VPN) based on OpenVPN. This allows easy switching between physical wireless networking and virtual ITT networking to  ensure that the stack tested is the stack deployed (it also reduces the work overhead).
 
 Just set up an OpenVPN server somewhere, and equip each ITT client with OpenVPN client. OpenVPN setup should use Layer 2 "TAP" connection (and not Layer 3 "TUN" connection) to be able to forward non-IP traffic (GeoNetworking is non-IP traffic). Then just send all GeoNetworking data to `tap0` instead of `wlan0`.
 
