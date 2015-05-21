@@ -28,7 +28,8 @@ class SocketClient implements Runnable, AutoCloseable, ClientConnection {
     private final BufferedReader reader;
     private final BufferedWriter writer;
     private final Logger         logger = LoggerFactory.getLogger(SocketClient.class);
-    private final Gson           gson   = new GsonBuilder().create();
+    //private final Gson           gson   = new GsonBuilder().create();
+    private final static Gson   gson   = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();  // TODO: unify with other GSONS
 
     public SocketClient(Socket socket, GroTrServer server) throws IOException {
         this.server = server;

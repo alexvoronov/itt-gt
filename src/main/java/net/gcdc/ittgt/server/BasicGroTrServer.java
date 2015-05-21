@@ -40,7 +40,8 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
     private Future<?> distributorFuture;
 
     private final static Logger logger = LoggerFactory.getLogger(BasicGroTrServer.class);
-    private final static Gson   gson   = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();
+    private final static Gson   gson   = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();  // TODO: unify with other GSONS
+//    private final static Gson   gson   = new GsonBuilder().create();
 
     public static void main(String[] args) throws JsonSyntaxException, JsonIOException, FileNotFoundException {
         final int port = Integer.parseInt(args[0]);

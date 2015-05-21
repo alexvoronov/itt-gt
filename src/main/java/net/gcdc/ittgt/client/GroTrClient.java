@@ -46,7 +46,8 @@ public class GroTrClient implements Runnable {
         private final BufferedReader reader;
         private final BufferedWriter writer;
         private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-                .create();
+                .create();  // TODO: unify with other gsons!
+        //private final Gson gson = new GsonBuilder().create();
 
         public TcpServerConnection(final InetSocketAddress grotrServerAddress) throws IOException {
             socket = new Socket(grotrServerAddress.getAddress(), grotrServerAddress.getPort());
@@ -54,16 +55,34 @@ public class GroTrClient implements Runnable {
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         }
 
-        @Override public void send(final Vehicle vehicle) throws IOException {
-            writer.write(gson.toJson(vehicle));
-            writer.newLine();
-            writer.flush();
+        @Override public void send(final Vehicle vehicle) {
+            String json = null;
+            try {
+                json = gson.toJson(vehicle);
+
+            } catch (Exception e) {  //TODO: which exception toJson throws?
+                logger.warn("can't write json", e);
+            }
+            if (json != null) {
+            try {
+                writer.write(json);
+                writer.newLine();
+                writer.flush();
+            } catch (IOException e) {
+                logger.warn("can't send json", e);
+            }
+            }
         }
 
         @Override public WorldModel receive() throws IOException {
             final String line = reader.readLine();
-            final WorldModel world = gson.fromJson(line, WorldModel.class);
-            return world;
+            try {
+                final WorldModel world = gson.fromJson(line, WorldModel.class);
+                return world;
+            } catch (com.google.gson.JsonSyntaxException e) {
+                logger.warn("Can't parse json: {}", line, e);
+                throw e;
+            }
         }
 
         @Override public void close() throws IOException {

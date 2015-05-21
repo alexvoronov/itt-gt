@@ -18,8 +18,11 @@ import net.gcdc.ittgt.model.Vehicle;
 import net.gcdc.ittgt.model.WorldModel;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroTrServerWithClientTest {
+    private final static Logger logger = LoggerFactory.getLogger(GroTrServerWithClientTest.class);
 
     private static final double oneStepLatChange = 0.01;
 
@@ -32,8 +35,11 @@ public class GroTrServerWithClientTest {
 
         @Override public Vehicle receive() throws IOException {
             try { Thread.sleep(3); }  // We don't want to give data to the server too fast.
-            catch (InterruptedException e) { } // Ignore interruption.
+            catch (InterruptedException e) {
+                logger.debug("Interrupted", e);
+            } // Ignore interruption.
             vehicle.lat += oneStepLatChange;
+            logger.debug("Step for {}: {}", this, vehicle.lat);
             return this.vehicle;
         }
 
@@ -78,8 +84,9 @@ public class GroTrServerWithClientTest {
         executor.submit(client2);
 
         int minExpectedSteps = 3;
+        Thread.sleep(500);
 
-        executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+        executor.awaitTermination(700, TimeUnit.MILLISECONDS);
         assertThat("veh1 lat", vehicle1.lat, greaterThan(vehicle1StartLat + minExpectedSteps * oneStepLatChange));
         assertThat("veh2 lat", vehicle2.lat, greaterThan(vehicle2StartLat + minExpectedSteps * oneStepLatChange));
 //        assertTrue(vehicle1.lat > vehicle1StartLat + minExpectedSteps * oneStepLatChange);
