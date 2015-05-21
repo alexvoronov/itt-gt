@@ -10,6 +10,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Arrays;
 
 import net.gcdc.ittgt.model.Vehicle;
 import net.gcdc.ittgt.model.WorldModel;
@@ -39,13 +40,13 @@ public class GroTrClient implements Runnable {
         public WorldModel receive() throws IOException;
     }
 
-
     public static class TcpServerConnection implements ServerConnection, AutoCloseable {
 
-        private final Socket         socket;
+        private final Socket socket;
         private final BufferedReader reader;
         private final BufferedWriter writer;
-        private final Gson           gson = new GsonBuilder().create();
+        private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+                .create();
 
         public TcpServerConnection(final InetSocketAddress grotrServerAddress) throws IOException {
             socket = new Socket(grotrServerAddress.getAddress(), grotrServerAddress.getPort());
@@ -74,19 +75,18 @@ public class GroTrClient implements Runnable {
 
     public static class UdpSimulinkConnection implements VehicleConnection, AutoCloseable {
         private final DatagramSocket socketFromSimulink;
-        private final byte[]         bufferFromSimulink = new byte[65535];
+        private final byte[] bufferFromSimulink = new byte[65535];
         private final DatagramPacket packetFromSimulink = new DatagramPacket(bufferFromSimulink,
-                                                                bufferFromSimulink.length);
+                bufferFromSimulink.length);
 
         private final DatagramSocket socketToSimulink;
-        private final byte[]         bufferToSimulink   = new byte[65535];
-        private final DatagramPacket packetToSimulink   = new DatagramPacket(bufferToSimulink,
-                                                                bufferToSimulink.length);
+        private final byte[] bufferToSimulink = new byte[65535];
+        private final DatagramPacket packetToSimulink = new DatagramPacket(bufferToSimulink,
+                bufferToSimulink.length);
 
         public UdpSimulinkConnection(
                 final InetSocketAddress remoteSimulinkAddress,
-                final int localPortForSimulink
-                ) throws SocketException {
+                final int localPortForSimulink) throws SocketException {
             socketFromSimulink = new DatagramSocket(localPortForSimulink);
             socketToSimulink = new DatagramSocket();
             packetToSimulink.setSocketAddress(remoteSimulinkAddress);
@@ -94,14 +94,26 @@ public class GroTrClient implements Runnable {
 
         @Override public Vehicle receive() throws IOException {
             socketFromSimulink.receive(packetFromSimulink);
-            final Vehicle vehicle = null;
-            // TODO: Parse from binary byte array 'bufferFromSimulink'.
+            byte[] data = Arrays.copyOf(packetFromSimulink.getData(),
+                    packetFromSimulink.getLength());
+            SimulinkGt simulinkGt = SimulinkParser.parse(data, SimulinkGt.class);
+            logger.debug("Got from simulink: {}", simulinkGt);
+            Vehicle vehicle = vehicleFromSimulinkGt(simulinkGt);
+            return vehicle;
+        }
+
+        private Vehicle vehicleFromSimulinkGt(SimulinkGt simulinkGt) {
+            Vehicle vehicle = new Vehicle();
+            vehicle.id = (int) simulinkGt.vehicleId;
+            vehicle.lat = simulinkGt.x;
+            vehicle.lon = simulinkGt.y;
+            vehicle.speedMetersPerSecond = simulinkGt.v;
             return vehicle;
         }
 
         @Override public void send(WorldModel worldModel) throws IOException {
             // TODO: put worldModel into byte array 'bufferToSimulink'.
-            socketToSimulink.send(packetToSimulink);
+            // socketToSimulink.send(packetToSimulink);
         }
 
         @Override public void close() {
@@ -111,16 +123,18 @@ public class GroTrClient implements Runnable {
 
     }
 
-    private static class SocketAddressFromString {
+    public static class SocketAddressFromString {
         private final InetSocketAddress address;
-        public InetSocketAddress asInetSocketAddress() { return address; }
 
-        @SuppressWarnings("unused")  // JewelCLI uses this constructor through reflection.
+        public InetSocketAddress asInetSocketAddress() {
+            return address;
+        }
+
+        @SuppressWarnings("unused")// JewelCLI uses this constructor through reflection.
         public SocketAddressFromString(final String addressStr) {
             String[] hostAndPort = addressStr.split(":");
-            if (hostAndPort.length != 2) {
-                throw new ArgumentValidationException("Expected host:port, got " + addressStr);
-            }
+            if (hostAndPort.length != 2) { throw new ArgumentValidationException(
+                    "Expected host:port, got " + addressStr); }
             this.address = new InetSocketAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1]));
         }
     }
@@ -139,8 +153,7 @@ public class GroTrClient implements Runnable {
                 opts.getRemoteSimulinkAddress().asInetSocketAddress(),
                 opts.getLocalPortForSimulink());
                 TcpServerConnection serverConnection = new TcpServerConnection(opts
-                        .getGrotrServerAddress().asInetSocketAddress());
-            ) {
+                        .getGrotrServerAddress().asInetSocketAddress());) {
             GroTrClient client = new GroTrClient(serverConnection, vehicleConnection);
             Thread t = new Thread(client);
             t.start();
@@ -157,6 +170,7 @@ public class GroTrClient implements Runnable {
 
     @Override public void run() {
         try {
+            // TODO: split into two threads: one Simulink-Server, and one Server-Simulink.
             while (true) {
                 logger.debug("waiting for vehicle");
                 Vehicle vehicle = vehicleConnection.receive();

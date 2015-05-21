@@ -8,7 +8,7 @@ public class Vehicle {
     public double lat;
     public double lon;
     public double height;
-    public double speed;
+    public double speedMetersPerSecond;
     public double heading;            // Direction of the velocity.
     public double orientation;        // Also absolutely in wgs84.
     public double yawRate;            // Change of orientation.
@@ -21,6 +21,6 @@ public class Vehicle {
     @Override
     public String toString() {
         return "Vehicle (t=" + simulationTimestamp + ", id=" + id + ", @("
-                + lat + ", " + lon + "), v=" + speed +")";
+                + lat + ", " + lon + "), v=" + speedMetersPerSecond +")";
     }
 }
