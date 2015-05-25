@@ -85,8 +85,8 @@ public class GroTrServerWithClientTest {
 
         int minExpectedSteps = 3;
 
-        client1.awaitTermination(100, TimeUnit.MILLISECONDS);
-        client2.awaitTermination(100, TimeUnit.MILLISECONDS);
+        client1.awaitTermination(200, TimeUnit.MILLISECONDS);
+        client2.awaitTermination(200, TimeUnit.MILLISECONDS);
         assertThat("veh1 lat", vehicle1.lat, greaterThan(vehicle1StartLat + minExpectedSteps * oneStepLatChange));
         assertThat("veh2 lat", vehicle2.lat, greaterThan(vehicle2StartLat + minExpectedSteps * oneStepLatChange));
 //        assertTrue(vehicle1.lat > vehicle1StartLat + minExpectedSteps * oneStepLatChange);

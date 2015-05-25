@@ -30,7 +30,8 @@ class SocketClient implements Runnable, AutoCloseable, ClientConnection {
     private final BufferedWriter writer;
     private final Logger         logger = LoggerFactory.getLogger(SocketClient.class);
     //private final Gson           gson   = new GsonBuilder().create();
-    private final static Gson   gson   = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();  // TODO: unify with other GSONS
+    private final static Gson    gson   = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();  // TODO: unify with other GSONS
+    private boolean              isStopped = false;
 
     public SocketClient(Socket socket, GroTrServer server) throws IOException {
         this.server = server;
@@ -50,30 +51,37 @@ class SocketClient implements Runnable, AutoCloseable, ClientConnection {
             writer.newLine();
             writer.flush();
         } catch (IOException e) {
-            logger.warn("Failed to write to socket while sending the world model, ignoring", e);
+            logger.warn("Failed to write to socket {} while sending the world model, removing client", this, e);
+            try {
+                this.close();
+            } catch (IOException e1) {
+                logger.warn("Exception in closing client {}", this, e1);
+            }
         }
     }
 
     @Override public void run() {
         try {
-            boolean registered = false;
-            while (true) {
+            boolean isRegistered = false;
+            while (!isStopped) {
+                logger.debug("waiting for vehicle from ITT client");
                 final String line = reader.readLine();
                 if (line == null) {
-                    logger.info("End of stream from client");
+                    logger.info("End of stream from client {}, removing client", this);
                     this.close();
                     return;
-                }
-                try {
-                    final Vehicle vehicle = gson.fromJson(line, Vehicle.class);
-                    logger.info("Received vehicle: {}", vehicle);
-                    if (registered) {
-                        this.server.updateVehicleState(vehicle, this);
-                    } else {
-                        registered = server.register(vehicle.id, this);  // Sends current world model too.
+                } else {
+                    try {
+                        final Vehicle vehicle = gson.fromJson(line, Vehicle.class);
+                        logger.info("Received vehicle from {}: {}", this, vehicle);
+                        if (isRegistered) {
+                            this.server.updateVehicleState(vehicle, this);
+                        } else {
+                            isRegistered = server.register(vehicle.id, this);  // Sends current world model too.
+                        }
+                    } catch (JsonParseException e) {
+                        logger.warn("Can't parse json from server, ignoring: {}", line, e);
                     }
-                } catch (JsonParseException e) {
-                    logger.warn("Can't parse json from server, ignoring: {}", line, e);
                 }
             }
         } catch (IOException e) {
@@ -84,6 +92,8 @@ class SocketClient implements Runnable, AutoCloseable, ClientConnection {
     }
 
     @Override public void close() throws IOException {
+        isStopped = true;
+        server.unregister(this);
         reader.close();
         writer.close();
         socket.close();

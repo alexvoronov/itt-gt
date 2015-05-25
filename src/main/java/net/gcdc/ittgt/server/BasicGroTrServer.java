@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -49,6 +50,8 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
                 new BufferedReader(new FileReader(args[1])),
                 WorldModel.class);
         final long timeoutMillis = 10 * 1000;
+        logger.info("Starting server on port {}, expecting {} clients, with client timeout {} s.",
+                port, worldModel.vehicles.length, timeoutMillis/1000);
 
         BasicGroTrServer server = new BasicGroTrServer(worldModel, timeoutMillis);
         Executors.newSingleThreadExecutor().submit(new ClientConnectionsSpawner(port, server));
@@ -69,7 +72,7 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
                     try {
                         resetVehicleCounter();
                         awaitAllVehicles();
-                        logger.info("All vehicles received, generating world model");
+                        logger.info("generating world model");
                         generateNextWorldModel();
                         sendWorldModel();
                     } catch (IOException e) {
@@ -85,7 +88,7 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
     };
 
     private void resetVehicleCounter() {
-        logger.debug("resetting vehicle counter to {}", allVehicleIds.size());
+        logger.debug("Start the wait for {} vehicles", allVehicleIds.size());
         counterVehiclesThisStep = new CountDownLatch(allVehicleIds.size());
         idToVehicleThisStep.clear();
     }
@@ -138,6 +141,14 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
                     "Attempt to register vehicle '{}' from {}, but vehicle already reistered to {}",
                     vehicleId, clientConnection.address(), idToClient.get(vehicleId).address());
             return false;
+        }
+    }
+
+    @Override public void unregister(ClientConnection clientConnection) {
+        for (Entry<Integer, ClientConnection> e: idToClient.entrySet()) {
+            if (e.getValue().address().equals(clientConnection.address())) {
+                idToClient.remove(e.getKey());
+            }
         }
     }
 

@@ -48,7 +48,8 @@ public final class ClientConnectionsSpawner implements Runnable, AutoCloseable {
             socketClient.close();
         }
         for (Future<?> f : submitted) {
-            f.cancel(true);
+            final boolean mayInterruptIfRunning = true;
+            f.cancel(mayInterruptIfRunning);
         }
         executorService.shutdownNow();
     }

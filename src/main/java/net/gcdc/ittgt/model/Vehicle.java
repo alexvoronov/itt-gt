@@ -13,7 +13,7 @@ public class Vehicle {
     public double orientation;        // Also absolutely in wgs84.
     public double yawRate;            // Change of orientation.
     public double accelerationLon;
-    public double accelarationLat;    // Lattitudinal or lateral?
+    public double accelerationLat;    // Lattitudinal or lateral?
     public double vehicleLength;
     public double vehicleWidth;
     public double distRefPointToRear;

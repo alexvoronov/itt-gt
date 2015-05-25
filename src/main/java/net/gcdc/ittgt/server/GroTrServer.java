@@ -8,4 +8,6 @@ public interface GroTrServer {
 
     boolean register(int vehicleId, ClientConnection clientConnection);
 
+    void unregister(ClientConnection clientConnection);
+
 }
