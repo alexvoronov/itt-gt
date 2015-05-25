@@ -38,6 +38,8 @@ public final class ClientConnectionsSpawner implements Runnable, AutoCloseable {
             }
         } catch (IOException e) {
             logger.error("Error in accpting clients to server socket", e);
+        } catch (Exception e) {
+            logger.error("Exception in client connection spawner", e);
         }
     }
 

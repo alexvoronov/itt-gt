@@ -11,6 +11,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import net.gcdc.ittgt.model.Vehicle;
 import net.gcdc.ittgt.model.WorldModel;
@@ -24,11 +27,13 @@ import com.lexicalscope.jewel.cli.ArgumentValidationException;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
-public class GroTrClient implements Runnable {
+public class GroTrClient {
 
     private final static Logger logger = LoggerFactory.getLogger(GroTrClient.class);
     private final VehicleConnection vehicleConnection;
     private final ServerConnection serverConnection;
+    private final static ExecutorService executor = Executors.newCachedThreadPool();
+
 
     public static interface VehicleConnection {
         public Vehicle receive() throws IOException;
@@ -39,6 +44,8 @@ public class GroTrClient implements Runnable {
         public void send(Vehicle vehicle) throws IOException;
         public WorldModel receive() throws IOException;
     }
+
+
 
     public static class TcpServerConnection implements ServerConnection, AutoCloseable {
 
@@ -169,14 +176,13 @@ public class GroTrClient implements Runnable {
             throws InterruptedException, ArgumentValidationException {
         CliOptions opts = CliFactory.parseArguments(CliOptions.class, args);
         try (UdpSimulinkConnection vehicleConnection = new UdpSimulinkConnection(
-                opts.getRemoteSimulinkAddress().asInetSocketAddress(),
-                opts.getLocalPortForSimulink());
-                TcpServerConnection serverConnection = new TcpServerConnection(opts
-                        .getGrotrServerAddress().asInetSocketAddress());) {
+                    opts.getRemoteSimulinkAddress().asInetSocketAddress(),
+                    opts.getLocalPortForSimulink());
+                TcpServerConnection serverConnection = new TcpServerConnection(
+                    opts.getGrotrServerAddress().asInetSocketAddress());
+            ) {
             GroTrClient client = new GroTrClient(serverConnection, vehicleConnection);
-            Thread t = new Thread(client);
-            t.start();
-            t.join();
+            client.start();
         } catch (IOException e) {
             logger.error("IO exception in client, terminating", e);
         }
@@ -187,22 +193,45 @@ public class GroTrClient implements Runnable {
         this.serverConnection = serverConnection;
     }
 
-    @Override public void run() {
-        try {
-            // TODO: split into two threads: one Simulink-Server, and one Server-Simulink.
-            while (true) {
-                logger.debug("waiting for vehicle");
-                Vehicle vehicle = vehicleConnection.receive();
-                logger.debug("got vehicle");
-                serverConnection.send(vehicle);
-                logger.debug("vehicle sent, waiting for world");
-                WorldModel worldModel = serverConnection.receive();
-                logger.debug("got world");
-                vehicleConnection.send(worldModel);
-            }
-        } catch (IOException e) {
-            logger.error("IO exception in the client loop, terminating", e);
-        }
+    public void start() {
+        executor.submit(this.senderThread);
+        executor.submit(this.receiverThread);
     }
 
+    public void awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        executor.awaitTermination(timeout, unit);
+    }
+
+
+    private final Runnable senderThread = new Runnable() {
+        @Override public void run() {
+            try {
+                while (true) {
+                    logger.debug("waiting for vehicle from client");
+                    Vehicle vehicle = vehicleConnection.receive();
+                    logger.debug("got vehicle from client");
+                    serverConnection.send(vehicle);
+                    logger.debug("vehicle sent to server");
+                }
+            } catch(Exception e) {
+                logger.error("Exception in ITT GT server thread", e);
+            }
+        }
+    };
+
+    private final Runnable receiverThread = new Runnable() {
+        @Override public void run() {
+            try {
+                while (true) {
+                    logger.debug("waiting for world from server");
+                    WorldModel worldModel = serverConnection.receive();
+                    logger.debug("got world");
+                    vehicleConnection.send(worldModel);
+                    logger.debug("World model sent to client");
+                }
+            } catch(Exception e) {
+                logger.error("Exception in ITT GT client thread", e);
+            }
+        }
+    };
 }

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 
 /** ITT GT Server abstraction that represents clients connecting through a TCP socket and
  * encodes Ground Truth Data (Vehicle and WorldModel) using JSON. */
@@ -63,16 +64,22 @@ class SocketClient implements Runnable, AutoCloseable, ClientConnection {
                     this.close();
                     return;
                 }
-                final Vehicle vehicle = gson.fromJson(line, Vehicle.class);
-                logger.info("Received vehicle: {}", vehicle);
-                if (registered) {
-                    this.server.updateVehicleState(vehicle, this);
-                } else {
-                    registered = server.register(vehicle.id, this);  // Sends current world model too.
+                try {
+                    final Vehicle vehicle = gson.fromJson(line, Vehicle.class);
+                    logger.info("Received vehicle: {}", vehicle);
+                    if (registered) {
+                        this.server.updateVehicleState(vehicle, this);
+                    } else {
+                        registered = server.register(vehicle.id, this);  // Sends current world model too.
+                    }
+                } catch (JsonParseException e) {
+                    logger.warn("Can't parse json from server, ignoring: {}", line, e);
                 }
             }
         } catch (IOException e) {
             logger.warn("Exception in client session, client seesion closing", e);
+        } catch (Exception e) {
+            logger.error("Exception in socket client", e);
         }
     }
 

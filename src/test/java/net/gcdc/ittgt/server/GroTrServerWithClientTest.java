@@ -80,12 +80,13 @@ public class GroTrServerWithClientTest {
         FakeVehicle fakeVehicleConn2 = new FakeVehicle(vehicle2);
         GroTrClient client1 = new GroTrClient(serverConnection1, fakeVehicleConn1);
         GroTrClient client2 = new GroTrClient(serverConnection2, fakeVehicleConn2);
-        executor.submit(client1);
-        executor.submit(client2);
+        client1.start();
+        client2.start();
 
         int minExpectedSteps = 3;
 
-        executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+        client1.awaitTermination(100, TimeUnit.MILLISECONDS);
+        client2.awaitTermination(100, TimeUnit.MILLISECONDS);
         assertThat("veh1 lat", vehicle1.lat, greaterThan(vehicle1StartLat + minExpectedSteps * oneStepLatChange));
         assertThat("veh2 lat", vehicle2.lat, greaterThan(vehicle2StartLat + minExpectedSteps * oneStepLatChange));
 //        assertTrue(vehicle1.lat > vehicle1StartLat + minExpectedSteps * oneStepLatChange);

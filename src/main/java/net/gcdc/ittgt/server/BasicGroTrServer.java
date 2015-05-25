@@ -78,6 +78,8 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
                 }
             } catch (InterruptedException e) {
                 logger.info("Interrupted sender thread", e);
+            } catch (Exception e) {
+                logger.error("Exception in model distributor", e);
             }
         }
     };
