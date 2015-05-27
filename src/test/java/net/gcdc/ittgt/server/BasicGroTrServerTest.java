@@ -124,13 +124,15 @@ public class BasicGroTrServerTest {
         vehicle2.lat = 57.5;
         vehicle2.lon = 13.5;
         model.vehicles = new Vehicle[] { vehicle1, vehicle2 };
-        final int timeoutMillis = 300;
+        final int timeoutMillis = 1200;
         GroTrServer server = new BasicGroTrServer(model, timeoutMillis);
         // Executors.newSingleThreadExecutor().submit(new SocketClientSpawner(port, server));
         ClientConnection connection1 = Mockito.mock(ClientConnection.class);
         ClientConnection connection2 = Mockito.mock(ClientConnection.class);
         when(connection1.address()).thenReturn("1");
         when(connection2.address()).thenReturn("2");
+
+        // TODO: just connecting sends world models, and even non-registered get world models.
 
         // Registers sends world model
         server.register(vehicle1.id, connection1);
