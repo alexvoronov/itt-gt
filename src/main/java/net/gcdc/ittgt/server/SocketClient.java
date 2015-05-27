@@ -45,7 +45,9 @@ class SocketClient implements Runnable, AutoCloseable, ClientConnection {
     }
 
     @Override public void send(WorldModel model) {
+        logger.debug("Attempting to send world model {}", model);
         String json = gson.toJson(model);
+        logger.debug("model encoded as line {}", json);
         try {
             writer.write(json);
             writer.newLine();
@@ -63,6 +65,7 @@ class SocketClient implements Runnable, AutoCloseable, ClientConnection {
     @Override public void run() {
         try {
             boolean isRegistered = false;
+            server.registerAnonymous(this);
             while (!isStopped) {
                 logger.debug("waiting for vehicle from ITT client");
                 final String line = reader.readLine();

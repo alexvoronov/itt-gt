@@ -10,4 +10,6 @@ public interface GroTrServer {
 
     void unregister(ClientConnection clientConnection);
 
+    void registerAnonymous(ClientConnection clientConnection);
+
 }

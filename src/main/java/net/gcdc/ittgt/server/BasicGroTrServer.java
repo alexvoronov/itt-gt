@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Set<Integer> allVehicleIds = new HashSet<>();
     private final Map<Integer, ClientConnection> idToClient = new HashMap<>();
+    private final Collection<ClientConnection> clients = new HashSet<>();
     private final ConcurrentHashMap<Integer, Vehicle> idToVehicleThisStep = new ConcurrentHashMap<>();
     private CountDownLatch counterVehiclesThisStep;
     private WorldModel lastCompleteWorldModel;
@@ -49,7 +51,7 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
         final WorldModel worldModel = gson.fromJson(
                 new BufferedReader(new FileReader(args[1])),
                 WorldModel.class);
-        final long timeoutMillis = 10 * 1000;
+        final long timeoutMillis = 4 * 1000;
         logger.info("Starting server on port {}, expecting {} clients, with client timeout {} s.",
                 port, worldModel.vehicles.length, timeoutMillis/1000);
 
@@ -97,19 +99,29 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
         counterVehiclesThisStep.await(timeoutMillis, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Updates {@link #lastCompleteWorldModel} in-place.
+     *
+     * TODO: do we need synchronized here?
+     */
     private void generateNextWorldModel() {
-        WorldModel model = new WorldModel();
-        model.header = lastCompleteWorldModel.header;
-        model.header.simulationTimestamp = new Date(model.header.simulationTimestamp.getTime()
-                + model.header.samplingTimeMs);
-        int numVehicles = idToVehicleThisStep.values().size();
-        model.vehicles = idToVehicleThisStep.values().toArray(new Vehicle[numVehicles]);
-        lastCompleteWorldModel = model;
+        lastCompleteWorldModel.header.simulationTimestamp = new Date(lastCompleteWorldModel.header.simulationTimestamp.getTime()
+                + lastCompleteWorldModel.header.samplingTimeMs);
+        for (int i = 0; i < lastCompleteWorldModel.vehicles.length; i++) {
+            int vehicleId = lastCompleteWorldModel.vehicles[i].id;
+            if (idToVehicleThisStep.containsKey(vehicleId)) {
+                Vehicle updatedVehicle = idToVehicleThisStep.get(vehicleId);
+                if (vehicleId != updatedVehicle.id) {
+                    logger.error("internal ITT assertion error: vehicle id does not match the key it was stored with");
+                }
+                lastCompleteWorldModel.vehicles[i] = updatedVehicle;
+            }
+        }
+        logger.debug("lastCompleteWorldModel: {}", lastCompleteWorldModel);
     }
 
     private void sendWorldModel() throws IOException {
-        for (int id : idToClient.keySet()) {
-            ClientConnection c = idToClient.get(id);
+        for (ClientConnection c : clients) {
             logger.debug("Sending world model to {}", c);
             c.send(lastCompleteWorldModel);
         }
@@ -122,6 +134,16 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
         executorService.shutdownNow();
     }
 
+    @Override public void registerAnonymous(ClientConnection clientConnection) {
+        if (!clients.contains(clientConnection)) {
+            clients.add(clientConnection);
+            clientConnection.send(lastCompleteWorldModel);
+        }
+    }
+
+    /**
+     * Check that there is no client with this vehicle-id already.
+     */
     @Override public boolean register(int vehicleId, ClientConnection clientConnection) {
         if (!allVehicleIds.contains(vehicleId)) {
             logger.warn("Unknown vehicle id '{}', ignoring", vehicleId);
@@ -129,7 +151,7 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
         }
         if (!idToClient.containsKey(vehicleId)) {
             idToClient.put(vehicleId, clientConnection);
-            clientConnection.send(lastCompleteWorldModel);
+            registerAnonymous(clientConnection);  // Just to make sure that it is also there.
             return true;
         }
         if (idToClient.get(vehicleId).address().equals(clientConnection.address())) {
@@ -150,6 +172,7 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
                 idToClient.remove(e.getKey());
             }
         }
+        clients.remove(clientConnection);
     }
 
     @Override public void updateVehicleState(Vehicle vehicle, ClientConnection clientConnection) {
@@ -186,5 +209,6 @@ public class BasicGroTrServer implements GroTrServer, AutoCloseable {
             logger.debug("Duplicate vehicle data received for this timestep from vehicle {} at {}", vehicle.id, clientConnection.address());
         }
     }
+
 
 }

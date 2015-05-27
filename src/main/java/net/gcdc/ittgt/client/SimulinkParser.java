@@ -40,6 +40,7 @@ public class SimulinkParser {
 
     public static byte[] encode(SimulinkWorld obj) {
         ByteBuffer bb = ByteBuffer.allocate(65535);
+        logger.debug("Trying to encode simulink world {}", obj);
         for (SimulinkGt v: obj.vehicles) {
             try {
                 encode2(v, bb);

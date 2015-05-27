@@ -12,7 +12,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +68,6 @@ public class GroTrClient {
             String json = null;
             try {
                 json = gson.toJson(vehicle);
-
             } catch (Exception e) {  //TODO: which exception toJson throws?
                 logger.warn("can't write json", e);
             }
@@ -86,6 +84,11 @@ public class GroTrClient {
 
         @Override public WorldModel receive() throws IOException {
             final String line = reader.readLine();
+            if (line == null) {
+                logger.error("End of stream from ITT server, returning null world model");
+                return null;
+            }
+            logger.debug("Got World line from ITT server: {}", line);
             try {
                 final WorldModel world = gson.fromJson(line, WorldModel.class);
                 return world;
@@ -122,10 +125,8 @@ public class GroTrClient {
                 final int localPortForSimulink) throws SocketException {
 
             socketFromSimulink = new DatagramSocket(localPortForSimulink);
-//            socketFromSimulink.connect(remoteSimulinkAddress);
 
             socketToSimulink = new DatagramSocket();
-//            socketToSimulink.connect(remoteSimulinkAddress);
 
             packetToSimulink.setSocketAddress(remoteSimulinkAddress);
 
@@ -140,13 +141,6 @@ public class GroTrClient {
 
         @Override public Vehicle receive() throws IOException {
             try {
-//                while (socketFromSimulink.isClosed() || !socketFromSimulink.isConnected()) {
-//                    logger.debug("Socket to receive from Simulink is closed, re-checking in 1 second");
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException e) { }
-//                }
-//                socketFromSimulink.setSoTimeout(16000);
                 socketFromSimulink.receive(packetFromSimulink);
             } catch (SocketException e) {
                 logger.error("can't read from simulink", e);
@@ -161,9 +155,17 @@ public class GroTrClient {
         }
 
         @Override public void send(WorldModel worldModel) throws IOException {
-            byte[] bytes = SimulinkParser.encode(simulinkWorldFromWorld(worldModel));
+            if (worldModel == null) {
+                throw new NullPointerException("Can't send null world model to simulink");
+            }
+            logger.debug("trying to send world model {} to simulink", worldModel);
+            SimulinkWorld simulinkWorldFromWorld = simulinkWorldFromWorld(worldModel);
+            byte[] bytes = SimulinkParser.encode(simulinkWorldFromWorld);
             System.arraycopy(bytes, 0, bufferToSimulink, 0, bytes.length);
+            packetToSimulink.setLength(bytes.length);
             socketToSimulink.send(packetToSimulink);
+            logger.debug("world model of size {} was sent to Simulink on udp port {} ({})",
+                    bytes.length, packetToSimulink.getPort(), packetToSimulink.getSocketAddress());
         }
 
         @Override public void close() {
@@ -191,6 +193,9 @@ public class GroTrClient {
         }
 
         private static SimulinkWorld simulinkWorldFromWorld(WorldModel world) {
+            if (world == null) {
+                throw new NullPointerException("Can't convert null World model.");
+            }
             SimulinkGt[] simulinkVehicles = new SimulinkGt[world.vehicles.length];
             Arrays.sort(world.vehicles, new Comparator<Vehicle>() {
                 @Override public int compare(Vehicle o1, Vehicle o2) {
@@ -236,9 +241,9 @@ public class GroTrClient {
     }
 
     private static interface CliOptions {
+        @Option int getLocalPortForSimulink();
         @Option SocketAddressFromString getRemoteSimulinkAddress();
         @Option SocketAddressFromString getGrotrServerAddress();
-        @Option int getLocalPortForSimulink();
         @Option(helpRequest = true) boolean getHelp();
     }
 
@@ -253,7 +258,7 @@ public class GroTrClient {
             ) {
             GroTrClient client = new GroTrClient(serverConnection, vehicleConnection);
             client.start();
-            client.awaitTermination(1, TimeUnit.HOURS);
+            client.awaitTermination(365, TimeUnit.DAYS);  // One year.
         } catch (IOException e) {
             logger.error("IO exception in client, terminating", e);
         }
@@ -273,26 +278,15 @@ public class GroTrClient {
         executor.awaitTermination(timeout, unit);
     }
 
-    private final CountDownLatch vehicleIdSent = new CountDownLatch(1);
-
     private final Runnable senderThread = new Runnable() {
         @Override public void run() {
             try {
-                boolean isFirstIteration = true;
                 while (true) {
                     logger.debug("waiting for vehicle from Simulink client");
                     Vehicle vehicle = vehicleConnection.receive();
-                    logger.debug("got vehicle from client");
+                    logger.info("got vehicle");
                     serverConnection.send(vehicle);
                     logger.debug("vehicle sent to ITT server");
-                    if (isFirstIteration) {
-                        logger.debug("First iteration - small pause");
-                        Thread.sleep(50);  // So that the server can receive the vehicle id.
-                        logger.debug("First iteration - count down");
-                        vehicleIdSent.countDown();
-                        logger.debug("First iteration - message sent");
-                        isFirstIteration = false;
-                    }
                 }
             } catch(Exception e) {
                 logger.error("Exception in ITT GT client sender thread", e);
@@ -303,18 +297,15 @@ public class GroTrClient {
     private final Runnable receiverThread = new Runnable() {
         @Override public void run() {
             try {
-                boolean isFirstIteration = true;
                 while (true) {
                     try {
-                        if (isFirstIteration) {
-                            logger.info("Waiting for sending our id");
-                            vehicleIdSent.await();
-                            logger.info("done waiting for id send");
-                            isFirstIteration = false;
-                        }
                         logger.debug("waiting for world from server");
                         WorldModel worldModel = serverConnection.receive();
-                        logger.debug("got world");
+                        if (worldModel == null) {
+                            logger.error("received null world model, terminating");
+                            return;
+                        }
+                        logger.info("got world");
                         vehicleConnection.send(worldModel);
                         logger.debug("World model sent to client");
                     } catch (IOException e) {
