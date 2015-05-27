@@ -13,7 +13,30 @@ The code here contains:
 The code here does not contain the Client itself (vehicle, implemented in e.g. Simulink). 
 The code here does not contain V2X part either, see [V2X notes](https://github.com/alexvoronov/itt-gt/blob/master/doc/V2X.md) for V2X part.
 
-The code here was tested only with unit tests. Tests with proper clients are planned for the end of May 2015.
+
+
+## Running
+1. Start a server.
+
+    Here we start an ITT Server on port 5001 with the initial WorldModel defined in `test1.json`:
+
+    ```shell
+    mvn exec:java -Dexec.mainClass="net.gcdc.ittgt.server.BasicGroTrServer" -Dexec.args="5001 src/test/resources/test1.json"
+    ```
+
+1. Start a client adapter.
+ 
+   Here we start one client adapter connecting to the ITT server on TCP 127.0.0.1:5001, listening for UDP from Simulink client on UDP 9080 and sending back to Simulink to UDP 127.0.0.1:9081:
+
+    ```shell
+    mvn exec:java -Dexec.mainClass="net.gcdc.ittgt.client.GroTrClient" -Dexec.args="--localPortForSimulink=9080 --remoteSimulinkAddress=127.0.0.1:9081 --grotrServerAddress=127.0.0.1:5001"
+    ```
+
+1. Start the client itself.
+
+    If using Simulink, start a simulation using the GUI.
+
+
 
 ## Implementation
 
