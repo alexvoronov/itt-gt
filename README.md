@@ -16,9 +16,12 @@ The code here does not contain V2X part either, see [V2X notes](https://github.c
 
 
 ## Running
+
+For Java sources, Maven is used as a build tool.
+
 1. Start a server.
 
-    Here we start an ITT Server on port 5001 with the initial WorldModel defined in `test1.json`:
+    Here's how to start an ITT Server on port 5001 with the initial WorldModel defined in `test1.json`:
 
     ```shell
     mvn exec:java -Dexec.mainClass="net.gcdc.ittgt.server.BasicGroTrServer" -Dexec.args="5001 src/test/resources/test1.json"
@@ -26,7 +29,7 @@ The code here does not contain V2X part either, see [V2X notes](https://github.c
 
 1. Start a client adapter.
  
-   Here we start one client adapter connecting to the ITT server on TCP 127.0.0.1:5001, listening for UDP from Simulink client on UDP 9080 and sending back to Simulink to UDP 127.0.0.1:9081:
+   Here's how to start a client adapter connected to the ITT server on TCP 127.0.0.1:5001, listening for Simulink client on UDP 9080 and sending back to Simulink to UDP 127.0.0.1:9081:
 
     ```shell
     mvn exec:java -Dexec.mainClass="net.gcdc.ittgt.client.GroTrClient" -Dexec.args="--localPortForSimulink=9080 --remoteSimulinkAddress=127.0.0.1:9081 --grotrServerAddress=127.0.0.1:5001"
