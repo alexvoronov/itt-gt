@@ -1,6 +1,12 @@
 # Interactive Test Tool - Ground Truth part [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt) [![Coverage Status](https://coveralls.io/repos/alexvoronov/itt-gt/badge.svg?branch=master)](https://coveralls.io/r/alexvoronov/itt-gt?branch=master)
 
-An implementation of the Interactive Test Tool (ITT) for interoperability testing of Cooperative [Intelligent Transport Systems](http://en.wikipedia.org/wiki/Intelligent_transportation_system) (C-ITS). The ITT allows remote interoperability testing of e.g. [platooning](http://en.wikipedia.org/wiki/Platoon_%28automobile%29). Since the ITT considers each client as a black box, manufacturers can test together without revealing internal implementations to each other. ITT clients can be implemented as Model-in-the-Loop, Controller-in-the-Loop or even [Hardware-in-the-Loop](http://en.wikipedia.org/wiki/Hardware-in-the-loop_simulation), thus allowing to combine physical and virtual vehicles. For more details, see [ITT paper](https://github.com/alexvoronov/itt-gt/blob/master/doc/Interactive.Test.Tool.preprint.pdf).
+An implementation of the Interactive Test Tool (ITT) for interoperability testing of Cooperative [Intelligent Transport Systems](http://en.wikipedia.org/wiki/Intelligent_transportation_system) (C-ITS). The ITT allows remote interoperability testing of e.g. [platooning](http://en.wikipedia.org/wiki/Platoon_%28automobile%29).
+
+Features:
+  -  Each client is a black box -- competitors can test interoperability without revealing implementations.
+  -  Clients can be implemented as Model-in-the-Loop, Controller-in-the-Loop or even [Hardware-in-the-Loop](http://en.wikipedia.org/wiki/Hardware-in-the-loop_simulation) -- to combine physical and virtual vehicles.
+ 
+For more details, see [ITT paper](https://github.com/alexvoronov/itt-gt/blob/master/doc/Interactive.Test.Tool.preprint.pdf).
 
 
 ## Status
@@ -45,11 +51,11 @@ For Java sources, Maven is used as a build tool.
 
 ### ITT GT Server
 
-Server listens on TCP for GT data from clients, then bundles it into WorldModel data, and sends it back to each client.
+Server listens on TCP for GT data from clients, then bundles it into WorldModel data, and sends it back to each client. On the first step, the server provides all the clients with their initial positions.
 
 ### ITT GT Client Adapter
 
-Client adapter listens on a UDP port for data from Simulink. Adapter unpacks Simulink data from UDP, then repacks it into JSON and sends it over TCP to the ITT GT Server. 
+Client adapter listens on a UDP port for data from Simulink. Adapter unpacks Simulink data from UDP, then repacks it into JSON and sends it over TCP to the ITT GT Server.
 
 Adapter receives WorldModel from ITT GT Server as JSON, unpacks JSON, then repacks the data as a UDP payload and sends it over UDP back to Simulink.
 
