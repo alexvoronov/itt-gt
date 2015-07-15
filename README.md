@@ -1,10 +1,6 @@
 # Interactive Test Tool - Ground Truth part [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt) [![Coverage Status](https://coveralls.io/repos/alexvoronov/itt-gt/badge.svg?branch=master)](https://coveralls.io/r/alexvoronov/itt-gt?branch=master)
 
-An implementation of the Interactive Test Tool (ITT) for interoperability testing of Cooperative [Intelligent Transport Systems](http://en.wikipedia.org/wiki/Intelligent_transportation_system) (C-ITS). The ITT allows remote interoperability testing of e.g. [platooning](http://en.wikipedia.org/wiki/Platoon_%28automobile%29).
-
-Features:
-  -  Each client is a black box -- competitors can test interoperability without revealing implementations.
-  -  Clients can be implemented as Model-in-the-Loop, Controller-in-the-Loop or even [Hardware-in-the-Loop](http://en.wikipedia.org/wiki/Hardware-in-the-loop_simulation) -- to combine physical and virtual vehicles.
+An implementation of the Interactive Test Tool (ITT) for interoperability testing of Cooperative [Intelligent Transport Systems](http://en.wikipedia.org/wiki/Intelligent_transportation_system) (C-ITS). The ITT allows remote interoperability testing of e.g. [platooning](http://en.wikipedia.org/wiki/Platoon_%28automobile%29). It is much simpler that [HLA](https://en.wikipedia.org/wiki/High-level_architecture) or [DIS](https://en.wikipedia.org/wiki/Distributed_Interactive_Simulation). Each client is a black box, so they can run different operating systems, simulation environments, or even hardware, to allow Model-in-the-Loop, Controller-in-the-Loop, [Hardware-in-the-Loop](http://en.wikipedia.org/wiki/Hardware-in-the-loop_simulation) or even combination of physical and virtual vehicles.
  
 For more details, see [ITT paper](https://github.com/alexvoronov/itt-gt/blob/master/doc/Interactive.Test.Tool.preprint.pdf).
 
