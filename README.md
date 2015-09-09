@@ -13,7 +13,7 @@ Vehicle control system takes *n*<nbsp/>⋅<nbsp/>V2X and SENSOR data, and output
 
 When you simulate your control system, you send MOVE to the vehicle dynamics model, which computes how the physical vehicle would have reacted. SENSOR comes from a sensor model. Sensor model takes a view of the world, so-called *Ground Truth*, and gives back detection angles and distances for the radars, and image frames for the cameras (e.g. [OpenDaVINCI](https://github.com/se-research/OpenDaVINCI) can literally take screenshots from [VDrift](https://github.com/VDrift/vdrift/)). 
 
-![Adapter](https://rawgit.com/alexvoronov/itt-gt/master/doc/img/sa-fig-vehicle-noitt-direct.svg)
+![Vehicle](https://rawgit.com/alexvoronov/itt-gt/master/doc/img/sa-fig-vehicle-noitt-direct.svg)
 
 
 ## Connecting two control systems
