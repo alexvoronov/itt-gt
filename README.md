@@ -9,7 +9,7 @@ For more details, see [ITT paper](https://github.com/alexvoronov/itt-gt/blob/mas
 ## Vehicle control system
 Vehicle control system takes *n*<nbsp/>⋅<nbsp/>V2X and SENSOR data, and outputs V2X and MOVE data. SENSOR is anything measured: camera, radar, anything (V2X actually also can be considered as a part of SENSOR). MOVE is what is sent to the steering wheel and acceleration/braking.
 
-![Controller](https://github.com/alexvoronov/itt-gt/raw/master/doc/img/cacc-v2x-vehicle.svg)
+![Controller](https://rawgit.com/alexvoronov/itt-gt/master/doc/img/cacc-v2x-vehicle.svg)
 
 When you simulate your control system, you send MOVE to the vehicle dynamics model, which computes how the physical vehicle would have reacted. SENSOR comes from a sensor model. Sensor model takes a view of the world, so-called *Ground Truth*, and gives back detection angles and distances for the radars, and image frames for the cameras (e.g. [OpenDaVINCI](https://github.com/se-research/OpenDaVINCI) can literally take screenshots from [VDrift](https://github.com/VDrift/vdrift/)). 
 
@@ -23,7 +23,7 @@ V2X part is even simpler than that. Just connect everyone using OpenVPN bridge, 
 
 Image below shows a complete client with V2X [GeoNetworking](https://github.com/alexvoronov/geonetworking) stack.
 
-![Client](https://github.com/alexvoronov/itt-gt/raw/master/doc/img/complete.svg)
+![Client](https://rawgit.com/alexvoronov/itt-gt/master/doc/img/complete.svg)
 
 The data to- and from Ground Truth Server is delivered as a JSON string over a TCP connection. If your sensor model and vehicle dynamics model can't talk JSON over TCP (e.g. Simulink can't), then you can use a simple adapter. 
 
