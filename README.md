@@ -5,6 +5,8 @@ An implementation of the Interactive Test Tool (ITT) for interoperability testin
  
 For more details, see [ITT paper](https://github.com/alexvoronov/itt-gt/blob/master/doc/Interactive.Test.Tool.preprint.pdf).
 
+ITT provides only the basic framework, the rest can be implemented as external modules. One such module is [Interaction and Validation Toolkit](https://github.com/aitorbak/IV-Toolset).
+
 
 ## Vehicle control system
 Vehicle control system takes *n*<nbsp/>⋅<nbsp/>V2X and SENSOR data, and outputs V2X and MOVE data. SENSOR is anything measured: camera, radar, anything (V2X actually also can be considered as a part of SENSOR). MOVE is what is sent to the steering wheel and acceleration/braking.
