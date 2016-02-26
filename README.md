@@ -1,9 +1,9 @@
-# Interactive Test Tool
+# Interactive Test Tool: Simulation and Testing of Multi-Vendor [CACC](https://en.wikipedia.org/wiki/Cooperative_Adaptive_Cruise_Control)
 [![Build Status](https://travis-ci.org/alexvoronov/itt-gt.svg?branch=master)](https://travis-ci.org/alexvoronov/itt-gt) [![Coverage Status](https://coveralls.io/repos/alexvoronov/itt-gt/badge.svg?branch=master)](https://coveralls.io/r/alexvoronov/itt-gt?branch=master)
 
 This repository is an implementation of the Interactive Test Tool (ITT) for interoperability testing of Cooperative [Intelligent Transport Systems](http://en.wikipedia.org/wiki/Intelligent_transportation_system) (C-ITS). The ITT allows remote interoperability testing of e.g. [platooning](http://en.wikipedia.org/wiki/Platoon_%28automobile%29). It is much simpler that [HLA](https://en.wikipedia.org/wiki/High-level_architecture) or [DIS](https://en.wikipedia.org/wiki/Distributed_Interactive_Simulation). Each client is a black box, so they can run different operating systems, simulation environments, or even hardware, to allow Model-in-the-Loop, Controller-in-the-Loop, [Hardware-in-the-Loop](http://en.wikipedia.org/wiki/Hardware-in-the-loop_simulation) or even combination of physical and virtual vehicles.
  
-For more details, see [ITT paper](https://github.com/alexvoronov/itt-gt/blob/master/doc/Interactive.Test.Tool.preprint.pdf).
+For more details, see [ITT paper](https://github.com/alexvoronov/itt-gt/blob/master/doc/Interactive.Test.Tool.preprint.pdf) ([DOI:10.1109/ITSC.2015.278](http://dx.doi.org/10.1109/ITSC.2015.278)).
 
 ITT provides the basic framework, while the rest can be implemented as external modules. One such module is [Interaction and Validation Toolkit](https://github.com/aitorbak/IV-Toolset).
 
